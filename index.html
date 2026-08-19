@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registre des Aventuriers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b1611;
+    --ink-soft:#332a20;
+    --parchment:#f1e5c8;
+    --parchment-dim:#e6d6ac;
+    --parchment-deep:#d9c48f;
+    --paper-shadow: rgba(27,22,17,0.45);
+    --gold:#c9a227;
+    --gold-bright:#e0bd45;
+    --ember:#a8402b;
+    --ember-bright:#c1462f;
+    --forest:#3f6b4a;
+    --forest-bright:#4d8259;
+    --steel:#5c7a99;
+    --frame-bg: radial-gradient(120% 140% at 30% 0%, #241d15 0%, #14100b 60%, #0c0906 100%);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'EB Garamond', serif;
+    background: var(--frame-bg);
+    color: var(--parchment);
+    min-height:100vh;
+    padding: 28px 20px 60px;
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events:none;
+    opacity:0.5;
+  }
+  h1,h2,h3,.display{ font-family:'Cinzel', serif; letter-spacing:0.02em; }
+  .title-deco{ font-family:'Cinzel Decorative', serif; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------- Header ---------- */
+  header{
+    max-width: 1180px; margin:0 auto 26px; text-align:center; position:relative;
+  }
+  .eyebrow{
+    font-family:'Cinzel', serif; font-size:11px; letter-spacing:0.35em; text-transform:uppercase;
+    color: var(--gold); opacity:0.85; margin-bottom:6px;
+  }
+  header h1{
+    font-size: clamp(28px, 5vw, 44px); margin: 0 0 6px; color: var(--parchment);
+    text-shadow: 0 2px 0 rgba(0,0,0,0.6);
+  }
+  #classLabel{
+    outline:none; border-bottom:1px dashed transparent; cursor:text; padding:0 4px;
+  }
+  #classLabel:hover{ border-bottom-color: rgba(201,162,39,0.5); }
+  header .sub{ color: var(--parchment-deep); font-size:15px; font-style:italic; opacity:0.85;}
+  .header-divider{
+    width:220px; height:10px; margin:16px auto 0;
+    background: radial-gradient(circle, var(--gold) 0 3px, transparent 4px) repeat-x;
+    background-size: 22px 10px;
+    opacity:0.6;
+  }
+
+  nav.tabs{
+    display:flex; justify-content:center; gap:10px; margin: 22px auto 0; max-width:1180px; flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-family:'Cinzel', serif; font-size:14px; letter-spacing:0.05em;
+    background: linear-gradient(180deg, #2a2118, #1a140e);
+    border: 1px solid rgba(201,162,39,0.35);
+    color: var(--parchment-deep);
+    padding: 10px 22px; border-radius: 3px; cursor:pointer;
+    transition: all .15s ease;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.5);
+  }
+  nav.tabs button:hover{ color: var(--gold-bright); border-color: var(--gold); }
+  nav.tabs button.active{
+    background: linear-gradient(180deg, #3a2c17, #241a0d);
+    color: var(--gold-bright); border-color: var(--gold);
+    box-shadow: inset 0 0 12px rgba(201,162,39,0.25), 0 2px 0 rgba(0,0,0,0.5);
+  }
+  .reset-link{
+    display:block; margin: 14px auto 0; text-align:center; font-size:12px; color: rgba(241,229,200,0.35);
+    cursor:pointer; text-decoration:underline; text-underline-offset:3px; width:fit-content;
+  }
+  .reset-link:hover{ color: rgba(193,70,47,0.8); }
+  .reset-link.danger-link{ margin-top:16px; color: rgba(193,70,47,0.55); }
+
+  main{ max-width: 1180px; margin: 0 auto; }
+  .view{ display:none; }
+  .view.active{ display:block; animation: fadein .25s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+  /* ---------- Roster toolbar ---------- */
+  .roster-toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin: 6px 2px 16px;
+  }
+  .roster-count{ font-size:12.5px; color: rgba(241,229,200,0.5); font-family:'JetBrains Mono',monospace; }
+  .add-student-btn{
+    font-family:'Cinzel',serif; font-size:13.5px; letter-spacing:0.03em; color: var(--ink);
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    border: 1px solid rgba(0,0,0,0.25); padding: 9px 18px; border-radius: 6px; cursor:pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.4); font-weight:600; transition: transform .12s ease;
+  }
+  .add-student-btn:hover{ transform: translateY(-1px); }
+  .add-student-btn:active{ transform: translateY(1px); box-shadow:none; }
+
+  /* ---------- Roster grid ---------- */
+  #rosterGrid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px; margin-top: 8px;
+  }
+  .card{
+    background: linear-gradient(180deg, var(--parchment) 0%, var(--parchment-dim) 100%);
+    border-radius: 6px; padding: 16px 14px 14px;
+    color: var(--ink);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.35), 0 10px 18px rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,0,0,0.15);
+    position: relative;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{ transform: translateY(-3px); box-shadow: 0 11px 0 rgba(0,0,0,0.35), 0 16px 22px rgba(0,0,0,0.45); }
+  .card.leveling-up{ animation: cardPulse 1.1s ease; }
+  @keyframes cardPulse{
+    0%{ box-shadow: 0 8px 0 rgba(0,0,0,0.35), 0 0 0 rgba(224,189,69,0);}
+    30%{ box-shadow: 0 8px 0 rgba(0,0,0,0.35), 0 0 40px 8px rgba(224,189,69,0.85);}
+    100%{ box-shadow: 0 8px 0 rgba(0,0,0,0.35), 0 0 0 rgba(224,189,69,0);}
+  }
+  .card-top{ display:flex; align-items:center; gap:12px; }
+  .medallion{
+    position:relative; width:72px; height:72px; flex:0 0 auto; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fffdf5, var(--parchment-deep) 70%);
+    border: 3px solid var(--ink); box-shadow: inset 0 0 0 3px var(--gold), 0 2px 4px rgba(0,0,0,0.3);
+    overflow:hidden;
+  }
+  .medallion svg{ position:absolute; top:-4px; left:-2px; width:112%; height:112%; }
+  .level-badge{
+    position:absolute; bottom:-6px; right:-6px; min-width:26px; height:26px; padding:0 4px;
+    background: var(--ink); color: var(--gold-bright); border:2px solid var(--gold);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-weight:700; font-size:12px;
+  }
+  .card-name{
+    font-family:'Cinzel', serif; font-weight:600; font-size:16px; color: var(--ink);
+    outline:none; border-bottom: 1px dashed transparent; cursor:text; line-height:1.25;
+  }
+  .card-name:hover{ border-bottom-color: rgba(27,22,17,0.3); }
+  .card-class{ font-size:12px; color: var(--ink-soft); opacity:0.7; font-style:italic; margin-top:2px;}
+  .card-guild-tag{
+    display:inline-block; margin-top:5px; font-size:10.5px; padding:2px 7px; border-radius:10px;
+    color:#fff; font-family:'Cinzel', serif; letter-spacing:0.02em;
+  }
+
+  .xpbar-wrap{ margin-top:12px; }
+  .xpbar-labels{ display:flex; justify-content:space-between; font-size:11px; font-family:'JetBrains Mono',monospace; color: var(--ink-soft); margin-bottom:3px; }
+  .xpbar{
+    height:12px; border-radius:7px; background: rgba(27,22,17,0.18);
+    border: 1px solid rgba(27,22,17,0.35); overflow:hidden; position:relative;
+  }
+  .xpbar-fill{
+    height:100%; border-radius:7px 0 0 7px;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    transition: width .5s cubic-bezier(.3,1.4,.5,1);
+    position:relative;
+  }
+  .xpbar-fill::after{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.35) 0 2px, transparent 2px 6px);
+    opacity:0.5;
+  }
+  .xpbar.flash-bonus .xpbar-fill{ box-shadow: 0 0 10px 2px rgba(77,130,89,0.9); }
+  .xpbar.flash-malus .xpbar-fill{ box-shadow: 0 0 10px 2px rgba(193,70,47,0.9); }
+
+  .quick-actions{ margin-top: 12px; display:flex; align-items:center; gap:6px; }
+  .quick-actions input[type=number]{
+    width: 48px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:13px;
+    border: 1px solid rgba(27,22,17,0.4); border-radius:4px; background: rgba(255,255,255,0.5);
+    color: var(--ink); padding:5px 2px;
+  }
+  .qbtn{
+    flex:1; border:none; border-radius:4px; padding:6px 4px; font-family:'Cinzel',serif; font-size:12px;
+    cursor:pointer; color:#fff; font-weight:600; letter-spacing:0.02em;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+    position:relative; overflow:visible;
+  }
+  .qbtn.bonus{ background: var(--forest-bright); }
+  .qbtn.bonus:hover{ background: #5a9c69; }
+  .qbtn.malus{ background: var(--ember-bright); }
+  .qbtn.malus:hover{ background: #d9573c; }
+  .qbtn:active{ transform: translateY(1px); box-shadow:none; }
+
+  .float-pop{
+    position:absolute; pointer-events:none; font-family:'Cinzel',serif; font-weight:700; font-size:15px;
+    animation: floatUp 1s ease forwards; z-index:5; white-space:nowrap;
+  }
+  @keyframes floatUp{
+    0%{ opacity:0; transform: translate(-50%,0) scale(0.8); }
+    15%{ opacity:1; transform: translate(-50%,-6px) scale(1.05); }
+    100%{ opacity:0; transform: translate(-50%,-46px) scale(1); }
+  }
+
+  /* ---------- Toast ---------- */
+  #toastWrap{ position:fixed; top:18px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center;}
+  .toast{
+    background: linear-gradient(180deg,#2a2118,#181209); border:1px solid var(--gold);
+    color: var(--gold-bright); font-family:'Cinzel',serif; font-size:14px; padding:10px 22px;
+    border-radius:4px; box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    animation: toastIn .3s ease, toastOut .4s ease 2.6s forwards;
+  }
+  @keyframes toastIn{ from{opacity:0; transform: translateY(-12px);} to{opacity:1; transform:none;} }
+  @keyframes toastOut{ to{opacity:0; transform: translateY(-8px);} }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background: rgba(8,6,4,0.72); backdrop-filter: blur(2px);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
+    animation: fadein .18s ease;
+  }
+  .modal-card{
+    width:100%; max-width: 420px; max-height: 92vh; overflow-y:auto;
+    background: linear-gradient(180deg,#1d1710,#120d08);
+    border: 1px solid rgba(201,162,39,0.4); border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,0,0,0.4);
+    padding: 22px 22px 26px; position:relative; color: var(--parchment);
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px; background:none; border:none; color: var(--parchment-deep);
+    font-size:22px; cursor:pointer; line-height:1; opacity:0.7;
+  }
+  .modal-close:hover{ opacity:1; color: var(--ember-bright); }
+
+  .status-pill{
+    position:absolute; top:16px; left:18px; font-size:10px; font-family:'Cinzel',serif; letter-spacing:0.08em;
+    text-transform:uppercase; background: rgba(201,162,39,0.15); border:1px solid rgba(201,162,39,0.4);
+    padding:3px 9px; border-radius:10px; color: var(--gold-bright);
+  }
+
+  .modal-medallion{
+    width:150px; height:150px; margin: 30px auto 6px; position:relative;
+    border-radius:50%; background: radial-gradient(circle at 35% 30%, #fffdf5, var(--parchment-deep) 70%);
+    border: 4px solid var(--gold); box-shadow: inset 0 0 0 3px var(--ink), 0 6px 18px rgba(0,0,0,0.5);
+    overflow:hidden;
+  }
+  .modal-medallion.leveling-up{ animation: medallionBurst 1.3s ease; }
+  @keyframes medallionBurst{
+    0%{ box-shadow: inset 0 0 0 3px var(--ink), 0 0 0 rgba(224,189,69,0);}
+    30%{ box-shadow: inset 0 0 0 3px var(--ink), 0 0 60px 14px rgba(224,189,69,0.95); transform:scale(1.06);}
+    100%{ box-shadow: inset 0 0 0 3px var(--ink), 0 0 0 rgba(224,189,69,0); transform:scale(1);}
+  }
+  .modal-medallion svg{ position:absolute; top:-6px; left:-3px; width:114%; height:114%; }
+
+  .modal-name{
+    text-align:center; font-family:'Cinzel',serif; font-weight:700; font-size:22px; margin-top:12px;
+    outline:none; border-bottom:1px dashed transparent; cursor:text;
+  }
+  .modal-name:hover{ border-bottom-color: rgba(201,162,39,0.5); }
+  .modal-class{ text-align:center; font-size:13px; color: var(--parchment-deep); font-style:italic; margin-top:2px; }
+  .modal-level{ text-align:center; margin-top:10px; font-family:'Cinzel',serif; color: var(--gold-bright); font-size:15px; letter-spacing:0.05em;}
+
+  .modal-xpbar-wrap{ margin: 12px 4px 4px; }
+  .modal-xpbar{ height:16px; border-radius:9px; background: rgba(241,229,200,0.12); border:1px solid rgba(201,162,39,0.4); overflow:hidden; }
+  .modal-xpbar-fill{ height:100%; background: linear-gradient(180deg, var(--gold-bright), var(--gold)); transition: width .6s cubic-bezier(.3,1.4,.5,1); }
+  .modal-xp-labels{ display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:11.5px; color: var(--parchment-deep); margin-top:4px;}
+
+  .section-label{
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; text-transform:uppercase;
+    color: var(--gold); opacity:0.85; margin: 20px 0 8px; text-align:center;
+  }
+
+  .modal-actions-row{ display:flex; gap:10px; justify-content:center; margin-top:6px; flex-wrap:wrap;}
+  .pill-btn{
+    font-family:'Cinzel',serif; font-size:12.5px; background: rgba(201,162,39,0.12);
+    border: 1px solid rgba(201,162,39,0.5); color: var(--gold-bright); padding:8px 16px;
+    border-radius: 20px; cursor:pointer; transition: all .15s ease;
+  }
+  .pill-btn:hover{ background: rgba(201,162,39,0.25); }
+
+  .xp-adjust-box{
+    background: rgba(241,229,200,0.05); border:1px solid rgba(241,229,200,0.15); border-radius:10px;
+    padding: 14px; margin-top:10px;
+  }
+  .xp-adjust-row{ display:flex; gap:8px; align-items:center; }
+  .xp-adjust-row input[type=number]{
+    width:62px; text-align:center; padding:7px 4px; border-radius:6px; border:1px solid rgba(201,162,39,0.4);
+    background: rgba(0,0,0,0.3); color: var(--parchment); font-family:'JetBrains Mono',monospace;
+  }
+  .xp-adjust-row input[type=text]{
+    flex:1; padding:7px 10px; border-radius:6px; border:1px solid rgba(201,162,39,0.3);
+    background: rgba(0,0,0,0.3); color: var(--parchment); font-family:'EB Garamond',serif; font-size:14px;
+  }
+  .xp-adjust-row input::placeholder{ color: rgba(241,229,200,0.35); }
+  .xp-adjust-buttons{ display:flex; gap:8px; margin-top:10px; }
+  .xp-adjust-buttons button{
+    flex:1; padding:9px; border:none; border-radius:7px; font-family:'Cinzel',serif; font-weight:600;
+    color:#fff; cursor:pointer; font-size:13px;
+  }
+  .xp-adjust-buttons .b-bonus{ background: var(--forest-bright); }
+  .xp-adjust-buttons .b-bonus:hover{ background:#5a9c69; }
+  .xp-adjust-buttons .b-malus{ background: var(--ember-bright); }
+  .xp-adjust-buttons .b-malus:hover{ background:#d9573c; }
+
+  .guild-select{
+    width:100%; margin-top:8px; padding:8px 10px; border-radius:7px; border:1px solid rgba(201,162,39,0.4);
+    background: rgba(0,0,0,0.3); color: var(--parchment); font-family:'EB Garamond',serif; font-size:14px;
+  }
+
+  .quest-log{ margin-top:10px; max-height:150px; overflow-y:auto; }
+  .quest-entry{
+    display:flex; justify-content:space-between; gap:8px; font-size:12.5px; padding:6px 4px;
+    border-bottom: 1px dashed rgba(241,229,200,0.12);
+  }
+  .quest-entry .q-reason{ color: var(--parchment-deep); flex:1; }
+  .quest-entry .q-delta{ font-family:'JetBrains Mono',monospace; font-weight:700; }
+  .quest-entry .q-delta.pos{ color: var(--forest-bright); }
+  .quest-entry .q-delta.neg{ color: var(--ember-bright); }
+  .quest-empty{ text-align:center; color: rgba(241,229,200,0.35); font-size:12.5px; font-style:italic; padding: 10px 0;}
+
+  /* ---------- Customize panel ---------- */
+  .customize-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding: 9px 4px; border-bottom: 1px dashed rgba(241,229,200,0.12);
+  }
+  .customize-row .c-label{ font-size:13px; color: var(--parchment-deep); width:110px; flex:0 0 auto; }
+  .customize-row .c-control{ display:flex; align-items:center; gap:8px; flex:1; justify-content:flex-end;}
+  .cyc-btn{
+    background: rgba(201,162,39,0.12); border:1px solid rgba(201,162,39,0.4); color: var(--gold-bright);
+    width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:14px; line-height:1;
+  }
+  .cyc-btn:hover{ background: rgba(201,162,39,0.28); }
+  .c-value{ font-size:12.5px; min-width:98px; text-align:center; color: var(--parchment); }
+
+  .random-btn{
+    width:100%; margin-top:14px; padding:10px; border-radius:8px; border:1px dashed rgba(201,162,39,0.5);
+    background: transparent; color: var(--gold-bright); font-family:'Cinzel',serif; cursor:pointer; font-size:13px;
+  }
+  .random-btn:hover{ background: rgba(201,162,39,0.1); }
+
+  /* ---------- Guild view ---------- */
+  #guildGrid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:18px; margin-top:10px; }
+  .guild-card{
+    border-radius:10px; padding: 16px 18px 18px; position:relative; overflow:hidden;
+    background: linear-gradient(180deg, rgba(241,229,200,0.08), rgba(241,229,200,0.02));
+    border: 1px solid rgba(201,162,39,0.25);
+  }
+  .guild-banner{ height:5px; border-radius:3px; margin-bottom:12px; }
+  .guild-card h3{
+    margin:0; font-size:19px; color: var(--parchment); display:flex; align-items:center; gap:8px;
+    outline:none; cursor:text; border-bottom:1px dashed transparent;
+  }
+  .guild-card h3:hover{ border-bottom-color: rgba(201,162,39,0.5); }
+  .guild-rank{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color: var(--gold-bright);
+    background: rgba(0,0,0,0.3); border-radius:5px; padding:2px 7px;
+  }
+  .guild-stats{ display:flex; gap:18px; margin: 10px 0 12px; }
+  .guild-stat .num{ font-family:'JetBrains Mono',monospace; font-size:20px; color: var(--gold-bright); font-weight:700;}
+  .guild-stat .lbl{ font-size:10.5px; color: var(--parchment-deep); text-transform:uppercase; letter-spacing:0.08em; }
+  .guild-members{ display:flex; flex-wrap:wrap; gap:6px; }
+  .mini-avatar{
+    width:34px; height:34px; border-radius:50%; overflow:hidden; position:relative;
+    background: var(--parchment-deep); border: 2px solid var(--ink); flex:0 0 auto;
+  }
+  .mini-avatar svg{ position:absolute; top:-3px; left:-1px; width:112%; height:112%; }
+  .guild-empty{ font-size:12px; color: rgba(241,229,200,0.4); font-style:italic; }
+
+  /* ---------- Confirm dialog ---------- */
+  .confirm-box{ text-align:center; }
+  .confirm-box p{ margin: 8px 0 18px; color: var(--parchment-deep); font-size:14.5px; line-height:1.5;}
+  .confirm-actions{ display:flex; gap:10px; justify-content:center; }
+  .confirm-actions button{
+    padding:9px 20px; border-radius:8px; border:none; font-family:'Cinzel',serif; cursor:pointer; font-weight:600;
+  }
+  .confirm-cancel{ background: rgba(241,229,200,0.12); color: var(--parchment); }
+  .confirm-cancel:hover{ background: rgba(241,229,200,0.22); }
+  .confirm-ok{ background: var(--ember-bright); color:#fff; }
+  .confirm-ok:hover{ background:#d9573c; }
+
+  footer{ text-align:center; margin-top: 44px; font-size:11.5px; color: rgba(241,229,200,0.28); }
+
+  @media (max-width: 480px){
+    .card-top{ gap:9px; }
+    .medallion{ width:60px; height:60px; }
+    nav.tabs button{ padding:8px 14px; font-size:12.5px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Compendium de Classe</div>
+  <h1><span id="classLabel" contenteditable="true" spellcheck="false" title="Cliquer pour renommer">Guilde des Aventuriers</span></h1>
+  <div class="sub">Suivi d'expérience &amp; feuilles de personnage</div>
+  <div class="header-divider"></div>
+  <nav class="tabs">
+    <button data-view="roster" class="active">⚔ Aventuriers</button>
+    <button data-view="guilds">🏰 Guildes</button>
+  </nav>
+</header>
+
+<main>
+  <section id="view-roster" class="view active">
+    <div class="roster-toolbar">
+      <span class="roster-count" id="rosterCount"></span>
+      <button class="add-student-btn" id="btnAddStudent">＋ Nouvel aventurier</button>
+    </div>
+    <div id="rosterGrid"></div>
+  </section>
+
+  <section id="view-guilds" class="view">
+    <div id="guildGrid"></div>
+  </section>
+</main>
+
+<footer>
+  <span class="reset-link" id="resetLink">Réinitialiser toutes les données</span>
+</footer>
+
+<div id="toastWrap"></div>
+<div id="modalRoot"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   CONFIG — ajustez ces deux valeurs pour changer le rythme
+   de progression (XP nécessaire par niveau).
+========================================================= */
+var CONFIG = {
+  NUM_STUDENTS: 20,
+  XP_BASE: 500,     // XP requis pour passer du niveau 1 au niveau 2
+  XP_GROWTH: 250    // XP supplémentaire requis à chaque niveau
+};
+
+var INK = "#1b1611";
+
+var SKIN_TONES   = ['#f4cfa0','#e9b589','#d99b6c','#b67848','#8a5a34','#5c3a22'];
+var HAIR_COLORS  = ['#1b140f','#3e2a1a','#6b4226','#9a6b2e','#c9a227','#8c8c8c','#7a2e2e'];
+var HAIRSTYLE_NAMES = ['Chauve','Court','Balayé','Long','Bouclé','Queue-de-cheval','Crête'];
+var EYE_NAMES    = ['Discrets','Grands yeux','Mi-clos','Étincelants','Perçants','Rieurs'];
+var NOSE_NAMES   = ['Discret','Fin','Courbé','Marqué'];
+var MOUTH_NAMES  = ['Sourire','Grand sourire','Malicieux','Neutre','Surpris','Canines'];
+var EAR_NAMES    = ['Rondes','Pointues','Cachées'];
+var HEADWEAR_NAMES = ['Aucun','Casque','Chapeau de mage','Couronne','Bandana','Cornes'];
+var OUTFITS = [
+  {name:'Guerrier', color:'#8c2f2f'},
+  {name:'Mage',      color:'#2f4e8c'},
+  {name:'Archer',    color:'#2f6b3f'},
+  {name:'Voleur',    color:'#5a2f6b'},
+  {name:'Paladin',   color:'#b8912a'}
+];
+var GUILDS = [
+  {id:'g1', name:'Loups d\u2019Argent',   color:'#5c7a99'},
+  {id:'g2', name:'Dragons Pourpres',  color:'#8c2f2f'},
+  {id:'g3', name:'Phénix Doré',       color:'#b8912a'},
+  {id:'g4', name:'Corbeaux de Jais',  color:'#5a2f6b'}
+];
+
+/* =========================================================
+   NIVEAUX
+========================================================= */
+function xpForLevel(level){ return CONFIG.XP_BASE + (level - 1) * CONFIG.XP_GROWTH; }
+function getLevelInfo(totalXp){
+  totalXp = Math.max(0, totalXp || 0);
+  var level = 1, remaining = totalXp, req = xpForLevel(1);
+  while (remaining >= req){
+    remaining -= req;
+    level += 1;
+    req = xpForLevel(level);
+  }
+  return { level: level, xpInto: remaining, xpNeeded: req, progress: Math.min(1, remaining / req) };
+}
+
+/* =========================================================
+   AVATAR — construction SVG par calques
+========================================================= */
+function eyePair(shape, cy){
+  cy = cy || 95;
+  return '<g transform="translate(100,'+cy+')">'+shape+'</g>' +
+         '<g transform="translate(140,'+cy+') scale(-1,1)">'+shape+'</g>';
+}
+var EYE_SHAPES = [
+  '<circle r="4" fill="'+INK+'"/>',
+  '<circle r="8.5" fill="#fff" stroke="'+INK+'" stroke-width="3"/><circle cx="1.6" cy="1" r="4.2" fill="'+INK+'"/><circle cx="-1" cy="-2.2" r="1.3" fill="#fff"/>',
+  '<path d="M-8 0 Q0 4 8 0" stroke="'+INK+'" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M-8 -3 Q0 -7 8 -3" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+  '<path d="M0 -8 L2.1 -2.1 L8 0 L2.1 2.1 L0 8 L-2.1 2.1 L-8 0 L-2.1 -2.1 Z" fill="'+INK+'"/>',
+  '<path d="M-9 3 L9 -5 L9 1 L-9 8 Z" fill="'+INK+'"/>',
+  '<path d="M-8 2 Q0 -8 8 2" stroke="'+INK+'" stroke-width="3.6" fill="none" stroke-linecap="round"/>'
+];
+var BROW_ELIGIBLE = {0:true, 1:true, 3:true};
+
+function noseShape(idx){
+  switch(idx){
+    case 0: return '';
+    case 1: return '<line x1="0" y1="-6" x2="0" y2="6" stroke="'+INK+'" stroke-width="3" stroke-linecap="round"/>';
+    case 2: return '<path d="M-2 -8 Q7 0 0 8" stroke="'+INK+'" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    default: return '<path d="M0 -6 L5 6 L-5 6 Z" fill="'+INK+'" opacity="0.85"/>';
+  }
+}
+function mouthShape(idx){
+  switch(idx){
+    case 0: return '<path d="M-14 0 Q0 12 14 0" stroke="'+INK+'" stroke-width="4" fill="none" stroke-linecap="round"/>';
+    case 1: return '<path d="M-14 0 Q0 17 14 0 Q0 8 -14 0 Z" fill="#fff" stroke="'+INK+'" stroke-width="3.4"/><line x1="-12" y1="3.2" x2="12" y2="3.2" stroke="'+INK+'" stroke-width="2"/>';
+    case 2: return '<path d="M-12 2 Q4 11 14 -2" stroke="'+INK+'" stroke-width="4" fill="none" stroke-linecap="round"/>';
+    case 3: return '<line x1="-12" y1="0" x2="12" y2="0" stroke="'+INK+'" stroke-width="4" stroke-linecap="round"/>';
+    case 4: return '<ellipse cy="2" rx="7" ry="9" fill="#7a2e2e" stroke="'+INK+'" stroke-width="3"/>';
+    default: return '<path d="M-14 0 Q0 12 14 0" stroke="'+INK+'" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+                     '<path d="M-8 4 L-5 11 L-2 4 Z" fill="#fff" stroke="'+INK+'" stroke-width="1.4"/>' +
+                     '<path d="M8 4 L5 11 L2 4 Z" fill="#fff" stroke="'+INK+'" stroke-width="1.4"/>';
+  }
+}
+function earPair(idx, skin){
+  if (idx === 2) return '';
+  var shape = idx === 1
+    ? '<path d="M0 -15 L9.5 4 L-4 8 Z" fill="'+skin+'" stroke="'+INK+'" stroke-width="3.5" stroke-linejoin="round"/>'
+    : '<ellipse rx="9" ry="13" fill="'+skin+'" stroke="'+INK+'" stroke-width="3.5"/>';
+  return '<g transform="translate(64,102)">'+shape+'</g><g transform="translate(176,102) scale(-1,1)">'+shape+'</g>';
+}
+function hairBack(idx, color){
+  if (idx === 3){
+    return '<path d="M64 90 Q48 168 70 236 L92 236 Q76 160 90 95 Z" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>' +
+           '<path d="M176 90 Q192 168 170 236 L148 236 Q164 160 150 95 Z" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>';
+  }
+  if (idx === 5){
+    return '<path d="M170 78 Q207 96 197 148 Q190 176 164 170 Q187 138 172 98 Z" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>';
+  }
+  return '';
+}
+function hairFront(idx, color){
+  switch(idx){
+    case 0: return '';
+    case 1:
+    case 3:
+    case 5:
+      return '<path d="M66 92 Q66 40 120 38 Q174 40 174 92 Q150 60 120 60 Q90 60 66 92 Z" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>';
+    case 2:
+      return '<path d="M64 94 Q58 38 120 36 Q180 40 178 88 Q158 54 118 58 Q94 62 90 88 Q80 68 64 94 Z" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>' +
+             '<path d="M150 44 Q172 58 166 86" stroke="'+color+'" stroke-width="7" fill="none" stroke-linecap="round"/>';
+    case 4:
+      return '<circle cx="88" cy="62" r="24" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>' +
+             '<circle cx="120" cy="44" r="29" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>' +
+             '<circle cx="152" cy="62" r="24" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>' +
+             '<circle cx="120" cy="70" r="26" fill="'+color+'" stroke="'+INK+'" stroke-width="4"/>';
+    default:
+      return '<path d="M108 42 L120 10 L132 42 L125 48 L115 48 Z" fill="'+color+'" stroke="'+INK+'" stroke-width="4" stroke-linejoin="round"/>' +
+             '<path d="M100 58 Q120 30 140 58" fill="none" stroke="'+color+'" stroke-width="9" stroke-linecap="round"/>';
+  }
+}
+function headwearShape(idx){
+  switch(idx){
+    case 1:
+      return '<path d="M62 90 Q58 28 120 24 Q182 28 178 90 Q178 68 120 64 Q62 68 62 90 Z" fill="#8a8f98" stroke="'+INK+'" stroke-width="5"/>' +
+             '<rect x="111" y="68" width="18" height="36" rx="4" fill="#6d7178" stroke="'+INK+'" stroke-width="3"/>';
+    case 2:
+      return '<path d="M120 4 L158 80 L82 80 Z" fill="#5b3a8e" stroke="'+INK+'" stroke-width="4.5" stroke-linejoin="round"/>' +
+             '<ellipse cx="120" cy="80" rx="47" ry="10" fill="#5b3a8e" stroke="'+INK+'" stroke-width="4"/>' +
+             '<path d="M120 34 L124 42 L132 42 L126 47 L128 55 L120 50 L112 55 L114 47 L108 42 L116 42 Z" fill="#f1e5c8"/>';
+    case 3:
+      return '<path d="M68 80 L77 44 L96 66 L120 38 L144 66 L163 44 L172 80 Z" fill="#d9b23c" stroke="'+INK+'" stroke-width="4" stroke-linejoin="round"/>' +
+             '<circle cx="120" cy="52" r="4.5" fill="#7a2e2e" stroke="'+INK+'" stroke-width="1.5"/>';
+    case 4:
+      return '<path d="M62 84 Q60 50 120 48 Q180 50 178 84 Q150 66 120 66 Q90 66 62 84 Z" fill="#b23a3a" stroke="'+INK+'" stroke-width="4"/>' +
+             '<path d="M176 78 Q200 86 191 108 Q182 94 172 90 Z" fill="#b23a3a" stroke="'+INK+'" stroke-width="3"/>';
+    case 5:
+      return '<path d="M70 72 Q52 42 66 16 Q82 42 78 70 Z" fill="#4a3222" stroke="'+INK+'" stroke-width="4" stroke-linejoin="round"/>' +
+             '<path d="M170 72 Q188 42 174 16 Q158 42 162 70 Z" fill="#4a3222" stroke="'+INK+'" stroke-width="4" stroke-linejoin="round"/>';
+    default: return '';
+  }
+}
+function emblemShape(outfitIdx){
+  var cx = 120, cy = 205;
+  var badge = '<path d="M120 189 L137 205 L120 221 L103 205 Z" fill="#f1e5c8" stroke="'+INK+'" stroke-width="3"/>';
+  var glyph = '';
+  switch(outfitIdx){
+    case 0: glyph = '<line x1="120" y1="195" x2="120" y2="215" stroke="'+INK+'" stroke-width="3.4" stroke-linecap="round"/><line x1="112" y1="200" x2="128" y2="200" stroke="'+INK+'" stroke-width="3.4" stroke-linecap="round"/>'; break;
+    case 1: glyph = '<path d="M120 193 L123.6 201.6 L133 202.6 L126 208.8 L128 218 L120 213 L112 218 L114 208.8 L107 202.6 L116.4 201.6 Z" fill="'+INK+'"/>'; break;
+    case 2: glyph = '<path d="M120 193 Q131 200 120 219 Q109 200 120 193 Z" fill="'+INK+'"/>'; break;
+    case 3: glyph = '<path d="M112 205 A9 9 0 1 0 128 197 A7 7 0 1 1 112 205 Z" fill="'+INK+'"/>'; break;
+    default: glyph = '<line x1="120" y1="195" x2="120" y2="215" stroke="'+INK+'" stroke-width="3.4" stroke-linecap="round"/><line x1="110" y1="205" x2="130" y2="205" stroke="'+INK+'" stroke-width="3.4" stroke-linecap="round"/>';
+  }
+  return badge + glyph;
+}
+
+function buildAvatarSVG(av){
+  var skin = SKIN_TONES[av.skin % SKIN_TONES.length];
+  var hcolor = HAIR_COLORS[av.hairColor % HAIR_COLORS.length];
+  var outfit = OUTFITS[av.outfit % OUTFITS.length];
+
+  var s = '<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">';
+
+  // body / shoulders
+  s += '<path d="M58 240 L84 162 Q120 148 156 162 L182 240 Z" fill="'+outfit.color+'" stroke="'+INK+'" stroke-width="5" stroke-linejoin="round"/>';
+  s += '<path d="M84 162 Q120 178 156 162" fill="none" stroke="'+INK+'" stroke-width="3" opacity="0.45"/>';
+  s += emblemShape(av.outfit);
+
+  // hair back
+  s += hairBack(av.hairStyle, hcolor);
+
+  // neck
+  s += '<rect x="102" y="142" width="36" height="28" rx="8" fill="'+skin+'" stroke="'+INK+'" stroke-width="4"/>';
+
+  // head
+  s += '<ellipse cx="120" cy="100" rx="52" ry="56" fill="'+skin+'" stroke="'+INK+'" stroke-width="5"/>';
+  s += '<ellipse cx="102" cy="86" rx="11" ry="7" fill="rgba(255,255,255,0.28)"/>';
+
+  // ears
+  s += earPair(av.ears, skin);
+
+  // eyebrows
+  if (BROW_ELIGIBLE[av.eyes]){
+    var brow = '<rect x="-8" y="-2" width="16" height="4" rx="2" fill="'+INK+'" transform="rotate(-8)"/>';
+    s += '<g transform="translate(100,76)">'+brow+'</g><g transform="translate(140,76) scale(-1,1)">'+brow+'</g>';
+  }
+  // eyes
+  s += eyePair(EYE_SHAPES[av.eyes % EYE_SHAPES.length]);
+
+  // nose
+  s += '<g transform="translate(120,110)">'+noseShape(av.nose)+'</g>';
+  // mouth
+  s += '<g transform="translate(120,129)">'+mouthShape(av.mouth)+'</g>';
+
+  // hair front
+  s += hairFront(av.hairStyle, hcolor);
+  // headwear
+  s += headwearShape(av.headwear);
+
+  s += '</svg>';
+  return s;
+}
+
+/* =========================================================
+   ÉTAT & PERSISTANCE
+========================================================= */
+var state = { className: 'Guilde des Aventuriers', students: [], guilds: JSON.parse(JSON.stringify(GUILDS)) };
+var currentView = 'roster';
+var openStudentId = null;
+var customizeMode = false;
+
+function seedDefaultRoster(){
+  var arr = [];
+  for (var i = 1; i <= CONFIG.NUM_STUDENTS; i++){
+    arr.push({
+      id: 's' + i,
+      name: 'Élève ' + i,
+      xp: 0,
+      guild: GUILDS[i % GUILDS.length].id,
+      avatar: {
+        skin: i % SKIN_TONES.length,
+        hairStyle: (i * 2 + 1) % HAIRSTYLE_NAMES.length,
+        hairColor: (i * 3) % HAIR_COLORS.length,
+        eyes: (i + 2) % EYE_NAMES.length,
+        nose: i % NOSE_NAMES.length,
+        mouth: (i * 2) % MOUTH_NAMES.length,
+        ears: i % EAR_NAMES.length,
+        outfit: i % OUTFITS.length,
+        headwear: (i + 1) % HEADWEAR_NAMES.length
+      },
+      history: []
+    });
+  }
+  return arr;
+}
+
+/* Adaptateur de stockage :
+   - Dans l'aperçu Claude, window.storage existe -> on l'utilise.
+   - En fichier téléchargé / hébergé sur GitHub Pages, window.storage n'existe
+     pas -> on bascule automatiquement sur localStorage du navigateur.
+   Sans ça, l'appli ouverte hors de Claude tombait sur une erreur silencieuse
+   et n'affichait jamais les 20 aventuriers. */
+var STORAGE_KEY = 'registre-aventuriers-state';
+var hasClaudeStorage = (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+
+function storageGet(key){
+  if (hasClaudeStorage){
+    return window.storage.get(key, false)
+      .then(function(res){ return res ? res.value : null; })
+      .catch(function(){ return null; });
+  }
+  return new Promise(function(resolve){
+    try{ resolve(localStorage.getItem(key)); }
+    catch(e){ resolve(null); }
+  });
+}
+
+function storageSet(key, value){
+  if (hasClaudeStorage){
+    window.storage.set(key, value, false).catch(function(e){ console.error('Erreur de sauvegarde', e); });
+    return;
+  }
+  try{ localStorage.setItem(key, value); }
+  catch(e){ console.error('Erreur de sauvegarde locale', e); }
+}
+
+function saveState(){
+  storageSet(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState(cb){
+  storageGet(STORAGE_KEY).then(function(raw){
+    if (raw){
+      try{
+        var parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.students) && parsed.students.length){
+          state = parsed;
+          if (!state.guilds) state.guilds = JSON.parse(JSON.stringify(GUILDS));
+          cb();
+          return;
+        }
+      }catch(e){ console.error('Etat corrompu, réinitialisation', e); }
+    }
+    state.students = seedDefaultRoster();
+    saveState();
+    cb();
+  });
+}
+
+/* =========================================================
+   UTILITAIRES UI
+========================================================= */
+function showToast(msg){
+  var wrap = document.getElementById('toastWrap');
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 3100);
+}
+
+function getStudent(id){
+  for (var i = 0; i < state.students.length; i++) if (state.students[i].id === id) return state.students[i];
+  return null;
+}
+function getGuild(id){
+  for (var i = 0; i < state.guilds.length; i++) if (state.guilds[i].id === id) return state.guilds[i];
+  return state.guilds[0];
+}
+
+function floatPopOn(container, text, cls){
+  var el = document.createElement('div');
+  el.className = 'float-pop';
+  el.textContent = text;
+  el.style.left = '50%';
+  el.style.top = '0px';
+  el.style.color = cls === 'malus' ? '#a8402b' : '#3f6b4a';
+  container.style.position = container.style.position || 'relative';
+  container.appendChild(el);
+  setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 1000);
+}
+
+/* =========================================================
+   APPLIQUER UN CHANGEMENT D'XP
+========================================================= */
+function applyXpChange(id, delta, reason, sourceCardEl){
+  var st = getStudent(id);
+  if (!st || !delta) return;
+  var beforeLevel = getLevelInfo(st.xp).level;
+  st.xp = Math.max(0, st.xp + delta);
+  var afterInfo = getLevelInfo(st.xp);
+
+  st.history = st.history || [];
+  st.history.unshift({
+    delta: delta,
+    reason: reason || (delta > 0 ? 'Bonus' : 'Malus'),
+    date: new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' })
+  });
+  if (st.history.length > 25) st.history.length = 25;
+
+  saveState();
+
+  if (sourceCardEl){
+    floatPopOn(sourceCardEl, (delta > 0 ? '+' : '') + delta + ' XP', delta > 0 ? 'bonus' : 'malus');
+  }
+
+  var leveledUp = afterInfo.level > beforeLevel;
+  if (leveledUp) showToast('🎉 ' + st.name + ' passe niveau ' + afterInfo.level + ' !');
+
+  renderRoster();
+  if (currentView === 'guilds') renderGuilds();
+  if (openStudentId === id) renderModal(leveledUp);
+
+  if (leveledUp){
+    var cardEl = document.querySelector('.card[data-id="'+id+'"]');
+    if (cardEl){ cardEl.classList.remove('leveling-up'); void cardEl.offsetWidth; cardEl.classList.add('leveling-up'); }
+  }
+}
+
+function renameStudent(id, newName){
+  var st = getStudent(id);
+  if (!st) return;
+  var clean = (newName || '').trim();
+  if (clean) st.name = clean;
+  saveState();
+}
+
+var nextStudentSeq = 1;
+function makeStudentId(){
+  nextStudentSeq += 1;
+  return 'sN' + Date.now().toString(36) + nextStudentSeq.toString(36);
+}
+
+function addStudent(){
+  var av = {};
+  CUSTOM_FIELDS.forEach(function(f){ av[f.key] = Math.floor(Math.random() * f.count); });
+  var newStudent = {
+    id: makeStudentId(),
+    name: 'Nouvel aventurier',
+    xp: 0,
+    guild: state.guilds[0].id,
+    avatar: av,
+    history: []
+  };
+  state.students.push(newStudent);
+  saveState();
+  renderRoster();
+  if (currentView === 'guilds') renderGuilds();
+  showToast('Un nouvel aventurier a rejoint le registre.');
+  openModal(newStudent.id);
+}
+
+function deleteStudent(id){
+  var st = getStudent(id);
+  if (!st) return;
+  state.students = state.students.filter(function(s){ return s.id !== id; });
+  saveState();
+  closeModal();
+  renderRoster();
+  if (currentView === 'guilds') renderGuilds();
+  showToast(st.name + ' a été retiré du registre.');
+}
+
+/* =========================================================
+   RENDU — ROSTER
+========================================================= */
+function renderRoster(){
+  var grid = document.getElementById('rosterGrid');
+  grid.innerHTML = '';
+  var countEl = document.getElementById('rosterCount');
+  if (countEl) countEl.textContent = state.students.length + (state.students.length > 1 ? ' aventuriers' : ' aventurier');
+  state.students.forEach(function(st){
+    var info = getLevelInfo(st.xp);
+    var guild = getGuild(st.guild);
+    var outfit = OUTFITS[st.avatar.outfit % OUTFITS.length];
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-id', st.id);
+
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<div class="medallion">' + buildAvatarSVG(st.avatar) + '<div class="level-badge">'+info.level+'</div></div>' +
+        '<div>' +
+          '<div class="card-name" contenteditable="true" spellcheck="false">'+escapeHtml(st.name)+'</div>' +
+          '<div class="card-class">'+outfit.name+'</div>' +
+          '<span class="card-guild-tag" style="background:'+guild.color+'">'+escapeHtml(guild.name)+'</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="xpbar-wrap">' +
+        '<div class="xpbar-labels"><span>Niv. '+info.level+'</span><span>'+info.xpInto+' / '+info.xpNeeded+' XP</span></div>' +
+        '<div class="xpbar"><div class="xpbar-fill" style="width:'+Math.round(info.progress*100)+'%"></div></div>' +
+      '</div>' +
+      '<div class="quick-actions">' +
+        '<input type="number" class="qty-input" value="5" min="1" max="999">' +
+        '<button class="qbtn bonus" data-act="bonus">＋ Bonus</button>' +
+        '<button class="qbtn malus" data-act="malus">－ Malus</button>' +
+      '</div>';
+
+    // open modal on card click, but not on interactive elements
+    card.addEventListener('click', function(e){
+      if (e.target.closest('.qty-input, .qbtn, .card-name')) return;
+      openModal(st.id);
+    });
+
+    var nameEl = card.querySelector('.card-name');
+    nameEl.addEventListener('click', function(e){ e.stopPropagation(); });
+    nameEl.addEventListener('blur', function(){ renameStudent(st.id, nameEl.textContent); renderRoster(); if(currentView==='guilds') renderGuilds(); });
+    nameEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); nameEl.blur(); } });
+
+    var qtyInput = card.querySelector('.qty-input');
+    qtyInput.addEventListener('click', function(e){ e.stopPropagation(); });
+
+    card.querySelector('[data-act="bonus"]').addEventListener('click', function(e){
+      e.stopPropagation();
+      var amt = Math.max(1, parseInt(qtyInput.value, 10) || 5);
+      flashBar(card, 'bonus');
+      applyXpChange(st.id, amt, null, card);
+    });
+    card.querySelector('[data-act="malus"]').addEventListener('click', function(e){
+      e.stopPropagation();
+      var amt = Math.max(1, parseInt(qtyInput.value, 10) || 5);
+      flashBar(card, 'malus');
+      applyXpChange(st.id, -amt, null, card);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+function flashBar(card, kind){
+  var bar = card.querySelector('.xpbar');
+  if (!bar) return;
+  bar.classList.remove('flash-bonus', 'flash-malus');
+  void bar.offsetWidth;
+  bar.classList.add(kind === 'bonus' ? 'flash-bonus' : 'flash-malus');
+  setTimeout(function(){ bar.classList.remove('flash-bonus', 'flash-malus'); }, 700);
+}
+
+function escapeHtml(str){
+  var d = document.createElement('div');
+  d.textContent = str == null ? '' : str;
+  return d.innerHTML;
+}
+
+/* =========================================================
+   RENDU — GUILDES
+========================================================= */
+function renderGuilds(){
+  var grid = document.getElementById('guildGrid');
+  grid.innerHTML = '';
+  var rows = state.guilds.map(function(g){
+    var members = state.students.filter(function(s){ return s.guild === g.id; });
+    var totalXp = members.reduce(function(a,s){ return a + s.xp; }, 0);
+    var avgLevel = members.length ? (members.reduce(function(a,s){ return a + getLevelInfo(s.xp).level; }, 0) / members.length) : 0;
+    return { guild: g, members: members, totalXp: totalXp, avgLevel: avgLevel };
+  });
+  rows.sort(function(a,b){ return b.totalXp - a.totalXp; });
+
+  rows.forEach(function(row, idx){
+    var card = document.createElement('div');
+    card.className = 'guild-card';
+    card.innerHTML =
+      '<div class="guild-banner" style="background:'+row.guild.color+'"></div>' +
+      '<h3 contenteditable="true" spellcheck="false">'+escapeHtml(row.guild.name)+' <span class="guild-rank">#'+(idx+1)+'</span></h3>' +
+      '<div class="guild-stats">' +
+        '<div class="guild-stat"><div class="num">'+row.totalXp+'</div><div class="lbl">XP total</div></div>' +
+        '<div class="guild-stat"><div class="num">'+(row.members.length ? row.avgLevel.toFixed(1) : '—')+'</div><div class="lbl">Niveau moyen</div></div>' +
+        '<div class="guild-stat"><div class="num">'+row.members.length+'</div><div class="lbl">Membres</div></div>' +
+      '</div>' +
+      '<div class="guild-members">' +
+        (row.members.length
+          ? row.members.map(function(s){ return '<div class="mini-avatar" title="'+escapeHtml(s.name)+'">'+buildAvatarSVG(s.avatar)+'</div>'; }).join('')
+          : '<span class="guild-empty">Aucun membre pour l\u2019instant</span>') +
+      '</div>';
+
+    var h3 = card.querySelector('h3');
+    h3.addEventListener('blur', function(){
+      var text = h3.childNodes[0] ? h3.childNodes[0].textContent.trim() : '';
+      if (text) row.guild.name = text;
+      saveState();
+      renderRoster();
+      renderGuilds();
+    });
+    h3.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); h3.blur(); } });
+
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   MODALE — FICHE PERSONNAGE
+========================================================= */
+var CUSTOM_FIELDS = [
+  { key:'skin',      label:'Teint',        names:null,             count:SKIN_TONES.length },
+  { key:'hairStyle', label:'Coiffure',     names:HAIRSTYLE_NAMES,  count:HAIRSTYLE_NAMES.length },
+  { key:'hairColor', label:'Cheveux',      names:null,             count:HAIR_COLORS.length },
+  { key:'eyes',      label:'Yeux',         names:EYE_NAMES,        count:EYE_NAMES.length },
+  { key:'nose',      label:'Nez',          names:NOSE_NAMES,       count:NOSE_NAMES.length },
+  { key:'mouth',     label:'Bouche',       names:MOUTH_NAMES,      count:MOUTH_NAMES.length },
+  { key:'ears',      label:'Oreilles',     names:EAR_NAMES,        count:EAR_NAMES.length },
+  { key:'outfit',    label:'Classe',       names:OUTFITS.map(function(o){return o.name;}), count:OUTFITS.length },
+  { key:'headwear',  label:'Couvre-chef',  names:HEADWEAR_NAMES,   count:HEADWEAR_NAMES.length }
+];
+
+function openModal(id){
+  openStudentId = id;
+  customizeMode = false;
+  renderModal(false);
+}
+function closeModal(){
+  openStudentId = null;
+  document.getElementById('modalRoot').innerHTML = '';
+}
+
+function renderModal(justLeveledUp){
+  var root = document.getElementById('modalRoot');
+  var st = getStudent(openStudentId);
+  if (!st){ root.innerHTML = ''; return; }
+  var info = getLevelInfo(st.xp);
+  var outfit = OUTFITS[st.avatar.outfit % OUTFITS.length];
+  var guild = getGuild(st.guild);
+
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) closeModal(); });
+
+  var card = document.createElement('div');
+  card.className = 'modal-card';
+
+  var bodyHtml = '<button class="modal-close" aria-label="Fermer">×</button>' +
+    '<div class="status-pill">'+escapeHtml(guild.name)+'</div>' +
+    '<div class="modal-medallion'+(justLeveledUp ? ' leveling-up' : '')+'">'+buildAvatarSVG(st.avatar)+'</div>' +
+    '<div class="modal-name" contenteditable="true" spellcheck="false">'+escapeHtml(st.name)+'</div>' +
+    '<div class="modal-class">'+outfit.name+'</div>' +
+    '<div class="modal-level">Niveau '+info.level+'</div>' +
+    '<div class="modal-xpbar-wrap">' +
+      '<div class="modal-xpbar"><div class="modal-xpbar-fill" style="width:'+Math.round(info.progress*100)+'%"></div></div>' +
+      '<div class="modal-xp-labels"><span>'+info.xpInto+' XP</span><span>'+st.xp+' XP total</span><span>'+info.xpNeeded+' XP</span></div>' +
+    '</div>' +
+    '<div class="modal-actions-row">' +
+      '<button class="pill-btn" id="btnCustomize">🎨 Personnaliser</button>' +
+    '</div>';
+
+  if (customizeMode){
+    bodyHtml += '<div class="section-label">Créateur de personnage</div><div id="customizeFields"></div>' +
+      '<button class="random-btn" id="btnRandomize">🎲 Apparence aléatoire</button>' +
+      '<div class="modal-actions-row" style="margin-top:14px;"><button class="pill-btn" id="btnDoneCustom">✅ Terminé</button></div>';
+  } else {
+    bodyHtml +=
+      '<div class="section-label">Guilde</div>' +
+      '<select class="guild-select" id="guildSelect">' +
+        state.guilds.map(function(g){ return '<option value="'+g.id+'"'+(g.id===st.guild?' selected':'')+'>'+escapeHtml(g.name)+'</option>'; }).join('') +
+      '</select>' +
+      '<div class="section-label">Points du jour</div>' +
+      '<div class="xp-adjust-box">' +
+        '<div class="xp-adjust-row">' +
+          '<input type="number" id="adjAmount" value="10" min="1" max="9999">' +
+          '<input type="text" id="adjReason" placeholder="Raison (optionnel) — ex. devoirs faits">' +
+        '</div>' +
+        '<div class="xp-adjust-buttons">' +
+          '<button class="b-bonus" id="btnAdjBonus">＋ Bonus</button>' +
+          '<button class="b-malus" id="btnAdjMalus">－ Malus</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="section-label">Journal de quête</div>' +
+      '<div class="quest-log">' + renderQuestLog(st) + '</div>' +
+      '<span class="reset-link danger-link" id="btnDeleteStudent">🗑 Supprimer cet aventurier</span>';
+  }
+
+  card.innerHTML = bodyHtml;
+  overlay.appendChild(card);
+  root.innerHTML = '';
+  root.appendChild(overlay);
+
+  card.querySelector('.modal-close').addEventListener('click', closeModal);
+
+  var nameEl = card.querySelector('.modal-name');
+  nameEl.addEventListener('blur', function(){ renameStudent(st.id, nameEl.textContent); renderRoster(); if(currentView==='guilds') renderGuilds(); if(!customizeMode) renderModal(false); });
+  nameEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); nameEl.blur(); } });
+
+  card.querySelector('#btnCustomize').addEventListener('click', function(){
+    customizeMode = true;
+    renderModal(false);
+  });
+
+  if (customizeMode){
+    renderCustomizeFields(st);
+    card.querySelector('#btnRandomize').addEventListener('click', function(){
+      CUSTOM_FIELDS.forEach(function(f){ st.avatar[f.key] = Math.floor(Math.random() * f.count); });
+      saveState();
+      renderModal(false);
+      renderRoster();
+    });
+    card.querySelector('#btnDoneCustom').addEventListener('click', function(){
+      customizeMode = false;
+      renderModal(false);
+    });
+  } else {
+    var guildSelect = card.querySelector('#guildSelect');
+    guildSelect.addEventListener('change', function(){
+      st.guild = guildSelect.value;
+      saveState();
+      renderModal(false);
+      renderRoster();
+      if (currentView === 'guilds') renderGuilds();
+    });
+
+    card.querySelector('#btnAdjBonus').addEventListener('click', function(){
+      var amt = Math.max(1, parseInt(card.querySelector('#adjAmount').value, 10) || 10);
+      var reason = card.querySelector('#adjReason').value;
+      applyXpChange(st.id, amt, reason);
+    });
+    card.querySelector('#btnAdjMalus').addEventListener('click', function(){
+      var amt = Math.max(1, parseInt(card.querySelector('#adjAmount').value, 10) || 10);
+      var reason = card.querySelector('#adjReason').value;
+      applyXpChange(st.id, -amt, reason);
+    });
+
+    card.querySelector('#btnDeleteStudent').addEventListener('click', function(){
+      confirmDialog(
+        'Supprimer ' + st.name + ' ?',
+        'Sa fiche, son XP et son apparence seront définitivement effacés. Cette action est irréversible.',
+        'Supprimer',
+        function(){ deleteStudent(st.id); }
+      );
+    });
+  }
+}
+
+function confirmDialog(title, message, confirmLabel, onConfirm){
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  var box = document.createElement('div');
+  box.className = 'modal-card confirm-box';
+  box.style.maxWidth = '360px';
+  box.innerHTML =
+    '<h3 style="margin-top:0; font-family:Cinzel,serif;">'+escapeHtml(title)+'</h3>' +
+    '<p>'+escapeHtml(message)+'</p>' +
+    '<div class="confirm-actions">' +
+      '<button class="confirm-cancel" id="cAbort">Annuler</button>' +
+      '<button class="confirm-ok" id="cConfirm">'+escapeHtml(confirmLabel)+'</button>' +
+    '</div>';
+  overlay.appendChild(box);
+  document.getElementById('modalRoot').appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+  box.querySelector('#cAbort').addEventListener('click', function(){ overlay.remove(); });
+  box.querySelector('#cConfirm').addEventListener('click', function(){
+    overlay.remove();
+    onConfirm();
+  });
+}
+
+function renderQuestLog(st){
+  if (!st.history || !st.history.length){
+    return '<div class="quest-empty">Aucun événement enregistré pour l\u2019instant.</div>';
+  }
+  return st.history.map(function(h){
+    var cls = h.delta > 0 ? 'pos' : 'neg';
+    var sign = h.delta > 0 ? '+' : '';
+    return '<div class="quest-entry"><span class="q-reason">'+escapeHtml(h.reason)+' <span class="mono" style="opacity:0.5;">('+h.date+')</span></span>' +
+           '<span class="q-delta '+cls+'">'+sign+h.delta+'</span></div>';
+  }).join('');
+}
+
+function renderCustomizeFields(st){
+  var container = document.getElementById('customizeFields');
+  if (!container) return;
+  container.innerHTML = '';
+  CUSTOM_FIELDS.forEach(function(f){
+    var row = document.createElement('div');
+    row.className = 'customize-row';
+    var valueLabel = f.names ? f.names[st.avatar[f.key]] : ('#' + (st.avatar[f.key] + 1));
+    row.innerHTML =
+      '<div class="c-label">'+f.label+'</div>' +
+      '<div class="c-control">' +
+        '<button class="cyc-btn" data-dir="-1">◀</button>' +
+        '<span class="c-value">'+escapeHtml(valueLabel)+'</span>' +
+        '<button class="cyc-btn" data-dir="1">▶</button>' +
+      '</div>';
+    row.querySelectorAll('.cyc-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var dir = parseInt(btn.getAttribute('data-dir'), 10);
+        st.avatar[f.key] = ((st.avatar[f.key] + dir) % f.count + f.count) % f.count;
+        saveState();
+        renderModal(false);
+        renderRoster();
+      });
+    });
+    container.appendChild(row);
+  });
+}
+
+/* =========================================================
+   NAVIGATION / TABS
+========================================================= */
+document.querySelectorAll('nav.tabs button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('nav.tabs button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentView = btn.getAttribute('data-view');
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    document.getElementById('view-' + currentView).classList.add('active');
+    if (currentView === 'guilds') renderGuilds();
+  });
+});
+
+document.getElementById('btnAddStudent').addEventListener('click', function(){
+  addStudent();
+});
+
+/* =========================================================
+   NOM DE CLASSE
+========================================================= */
+var classLabelEl = document.getElementById('classLabel');
+classLabelEl.textContent = state.className || 'Guilde des Aventuriers';
+classLabelEl.addEventListener('blur', function(){
+  var text = classLabelEl.textContent.trim();
+  state.className = text || 'Guilde des Aventuriers';
+  classLabelEl.textContent = state.className;
+  saveState();
+});
+classLabelEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); classLabelEl.blur(); } });
+
+/* =========================================================
+   RÉINITIALISATION (confirmation personnalisée)
+========================================================= */
+document.getElementById('resetLink').addEventListener('click', function(){
+  confirmDialog(
+    'Réinitialiser le registre ?',
+    'Tous les niveaux, XP, guildes et apparences seront remis à zéro et le registre repart avec 20 aventuriers par défaut. Cette action est irréversible.',
+    'Réinitialiser',
+    function(){
+      state.students = seedDefaultRoster();
+      state.guilds = JSON.parse(JSON.stringify(GUILDS));
+      saveState();
+      closeModal();
+      renderRoster();
+      if (currentView === 'guilds') renderGuilds();
+      showToast('Le registre a été réinitialisé.');
+    }
+  );
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+loadState(function(){
+  renderRoster();
+});
+
+})();
+</script>
+</body>
+</html>
