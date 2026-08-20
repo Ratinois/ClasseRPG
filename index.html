@@ -346,6 +346,91 @@
   }
   .random-btn:hover{ background: rgba(201,162,39,0.1); }
 
+  /* ---------- Quest board ---------- */
+  #questGrid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap:18px; margin-top:8px; }
+  .quest-card{
+    background: linear-gradient(180deg, var(--parchment) 0%, var(--parchment-dim) 100%);
+    border-radius: 8px; padding: 16px 16px 14px; color: var(--ink);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.35), 0 10px 18px rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,0,0,0.15); position:relative;
+  }
+  .quest-card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .quest-icon{ font-size:30px; line-height:1; }
+  .quest-xp-badge{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; padding:4px 9px;
+    border-radius: 12px; color:#fff; white-space:nowrap;
+  }
+  .quest-xp-badge.pos{ background: var(--forest-bright); }
+  .quest-xp-badge.neg{ background: var(--ember-bright); }
+  .quest-name{ font-family:'Cinzel',serif; font-weight:600; font-size:16.5px; margin-top:8px; }
+  .quest-desc{ font-size:12.5px; color: var(--ink-soft); opacity:0.75; margin-top:3px; min-height:16px; }
+  .quest-card-actions{ display:flex; gap:6px; margin-top:14px; }
+  .quest-assign-btn{
+    flex:1; background: var(--ink); color: var(--gold-bright); border:none; border-radius:6px;
+    padding: 9px 8px; font-family:'Cinzel',serif; font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+  .quest-assign-btn:hover{ background:#2a2118; }
+  .quest-icon-btn{
+    background: rgba(27,22,17,0.08); border:none; border-radius:6px; width:34px; cursor:pointer; font-size:14px;
+    color: var(--ink);
+  }
+  .quest-icon-btn:hover{ background: rgba(27,22,17,0.18); }
+  .quest-empty-msg{ color: rgba(241,229,200,0.4); font-style:italic; font-size:13.5px; text-align:center; padding: 30px 0; }
+
+  /* Quest form modal */
+  .icon-picker{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 8px 0 4px; }
+  .icon-choice{
+    width:38px; height:38px; border-radius:8px; border:1px solid rgba(201,162,39,0.3);
+    background: rgba(241,229,200,0.05); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .icon-choice.selected{ background: rgba(201,162,39,0.3); border-color: var(--gold); }
+  .form-field{ margin-top:14px; }
+  .form-field label{ display:block; font-size:11.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); opacity:0.85; margin-bottom:6px; font-family:'Cinzel',serif;}
+  .form-field input[type=text], .form-field input[type=number]{
+    width:100%; padding: 9px 11px; border-radius:7px; border:1px solid rgba(201,162,39,0.35);
+    background: rgba(0,0,0,0.3); color: var(--parchment); font-family:'EB Garamond',serif; font-size:14.5px;
+  }
+  .sign-toggle{ display:flex; gap:8px; }
+  .sign-toggle button{
+    flex:1; padding:9px; border-radius:7px; border:1px solid rgba(201,162,39,0.35); background: rgba(241,229,200,0.05);
+    color: var(--parchment-deep); font-family:'Cinzel',serif; cursor:pointer; font-size:13px;
+  }
+  .sign-toggle button.active.bonus{ background: var(--forest-bright); border-color: var(--forest-bright); color:#fff; }
+  .sign-toggle button.active.malus{ background: var(--ember-bright); border-color: var(--ember-bright); color:#fff; }
+  .form-actions{ display:flex; gap:10px; margin-top:20px; }
+  .form-actions button{ flex:1; padding:10px; border-radius:8px; border:none; font-family:'Cinzel',serif; font-weight:600; cursor:pointer; }
+  .form-save{ background: var(--gold); color: var(--ink); }
+  .form-save:hover{ background: var(--gold-bright); }
+  .form-cancel{ background: rgba(241,229,200,0.12); color: var(--parchment); }
+  .form-cancel:hover{ background: rgba(241,229,200,0.22); }
+
+  /* Assign panel */
+  .assign-quest-header{ text-align:center; margin: 26px 0 6px; }
+  .assign-quest-header .quest-icon{ font-size:38px; }
+  .assign-quest-header h3{ margin:6px 0 2px; font-size:19px; }
+  .assign-select-all{ display:flex; justify-content:center; gap:14px; margin: 6px 0 10px; }
+  .assign-select-all span{ font-size:12px; color: var(--gold-bright); text-decoration:underline; cursor:pointer; text-underline-offset:3px; }
+  .assign-list{ max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .assign-row{
+    display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:8px; cursor:pointer;
+    border: 1px solid transparent;
+  }
+  .assign-row:hover{ background: rgba(241,229,200,0.06); }
+  .assign-row.checked{ background: rgba(201,162,39,0.14); border-color: rgba(201,162,39,0.35); }
+  .assign-row .mini-avatar{ width:32px; height:32px; }
+  .assign-row .a-name{ flex:1; font-size:14px; }
+  .assign-row .a-check{
+    width:19px; height:19px; border-radius:5px; border:1.5px solid rgba(201,162,39,0.5);
+    display:flex; align-items:center; justify-content:center; font-size:12px; color: var(--gold-bright);
+  }
+  .assign-row.checked .a-check{ background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .assign-confirm-btn{
+    width:100%; margin-top:16px; padding:11px; border:none; border-radius:8px;
+    background: var(--gold); color: var(--ink); font-family:'Cinzel',serif; font-weight:700; cursor:pointer; font-size:14px;
+  }
+  .assign-confirm-btn:hover{ background: var(--gold-bright); }
+  .assign-confirm-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
   /* ---------- Guild view ---------- */
   #guildGrid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:18px; margin-top:10px; }
   .guild-card{
@@ -404,6 +489,7 @@
   <div class="header-divider"></div>
   <nav class="tabs">
     <button data-view="roster" class="active">⚔ Aventuriers</button>
+    <button data-view="quests">📜 Quêtes</button>
     <button data-view="guilds">🏰 Guildes</button>
   </nav>
 </header>
@@ -415,6 +501,14 @@
       <button class="add-student-btn" id="btnAddStudent">＋ Nouvel aventurier</button>
     </div>
     <div id="rosterGrid"></div>
+  </section>
+
+  <section id="view-quests" class="view">
+    <div class="roster-toolbar">
+      <span class="roster-count" id="questCount"></span>
+      <button class="add-student-btn" id="btnAddQuest">＋ Nouvelle quête</button>
+    </div>
+    <div id="questGrid"></div>
   </section>
 
   <section id="view-guilds" class="view">
@@ -466,6 +560,19 @@ var GUILDS = [
   {id:'g3', name:'Phénix Doré',       color:'#b8912a'},
   {id:'g4', name:'Corbeaux de Jais',  color:'#5a2f6b'}
 ];
+
+var QUEST_ICONS = ['📚','🙋','🤝','🧠','🎯','🏆','🔥','⭐','🛡️','⚔️','🧹','😬','🎒','💤','🗣️','🚫'];
+
+function seedDefaultQuests(){
+  return [
+    { id:'q1', icon:'📚', name:'Devoirs faits',              xp:10, desc:'Travail donné réalisé' },
+    { id:'q2', icon:'🙋', name:'Participation active',       xp:5,  desc:'Lève la main, propose, s\u2019investit' },
+    { id:'q3', icon:'🤝', name:'Aide un camarade',           xp:8,  desc:'Entraide spontanée' },
+    { id:'q4', icon:'🏆', name:'Objectif de la semaine',     xp:20, desc:'Défi collectif ou individuel atteint' },
+    { id:'q5', icon:'😬', name:'Bavardage / hors sujet',     xp:-5, desc:'Rappel à l\u2019ordre' },
+    { id:'q6', icon:'🎒', name:'Matériel oublié',            xp:-3, desc:'' }
+  ];
+}
 
 /* =========================================================
    NIVEAUX
@@ -642,7 +749,7 @@ function buildAvatarSVG(av){
 /* =========================================================
    ÉTAT & PERSISTANCE
 ========================================================= */
-var state = { className: 'Guilde des Aventuriers', students: [], guilds: JSON.parse(JSON.stringify(GUILDS)) };
+var state = { className: 'Guilde des Aventuriers', students: [], guilds: JSON.parse(JSON.stringify(GUILDS)), quests: [] };
 var currentView = 'roster';
 var openStudentId = null;
 var customizeMode = false;
@@ -714,12 +821,14 @@ function loadState(cb){
         if (parsed && Array.isArray(parsed.students) && parsed.students.length){
           state = parsed;
           if (!state.guilds) state.guilds = JSON.parse(JSON.stringify(GUILDS));
+          if (!state.quests) state.quests = seedDefaultQuests();
           cb();
           return;
         }
       }catch(e){ console.error('Etat corrompu, réinitialisation', e); }
     }
     state.students = seedDefaultRoster();
+    state.quests = seedDefaultQuests();
     saveState();
     cb();
   });
@@ -761,9 +870,10 @@ function floatPopOn(container, text, cls){
 /* =========================================================
    APPLIQUER UN CHANGEMENT D'XP
 ========================================================= */
-function applyXpChange(id, delta, reason, sourceCardEl){
+function applyXpChange(id, delta, reason, sourceCardEl, opts){
+  opts = opts || {};
   var st = getStudent(id);
-  if (!st || !delta) return;
+  if (!st || !delta) return false;
   var beforeLevel = getLevelInfo(st.xp).level;
   st.xp = Math.max(0, st.xp + delta);
   var afterInfo = getLevelInfo(st.xp);
@@ -783,16 +893,19 @@ function applyXpChange(id, delta, reason, sourceCardEl){
   }
 
   var leveledUp = afterInfo.level > beforeLevel;
-  if (leveledUp) showToast('🎉 ' + st.name + ' passe niveau ' + afterInfo.level + ' !');
+  if (leveledUp && !opts.silent) showToast('🎉 ' + st.name + ' passe niveau ' + afterInfo.level + ' !');
 
-  renderRoster();
-  if (currentView === 'guilds') renderGuilds();
-  if (openStudentId === id) renderModal(leveledUp);
+  if (!opts.skipRender){
+    renderRoster();
+    if (currentView === 'guilds') renderGuilds();
+    if (openStudentId === id) renderModal(leveledUp);
+  }
 
   if (leveledUp){
     var cardEl = document.querySelector('.card[data-id="'+id+'"]');
     if (cardEl){ cardEl.classList.remove('leveling-up'); void cardEl.offsetWidth; cardEl.classList.add('leveling-up'); }
   }
+  return leveledUp;
 }
 
 function renameStudent(id, newName){
@@ -1170,8 +1283,231 @@ function renderCustomizeFields(st){
 }
 
 /* =========================================================
-   NAVIGATION / TABS
+   QUÊTES — catalogue réutilisable + attribution groupée
 ========================================================= */
+function renderQuests(){
+  var grid = document.getElementById('questGrid');
+  var countEl = document.getElementById('questCount');
+  grid.innerHTML = '';
+  if (countEl) countEl.textContent = state.quests.length + (state.quests.length > 1 ? ' quêtes' : ' quête');
+
+  if (!state.quests.length){
+    grid.innerHTML = '<div class="quest-empty-msg" style="grid-column:1/-1;">Aucune quête pour l\u2019instant — crée-en une avec le bouton ci-dessus.</div>';
+    return;
+  }
+
+  state.quests.forEach(function(q){
+    var card = document.createElement('div');
+    card.className = 'quest-card';
+    card.innerHTML =
+      '<div class="quest-card-top">' +
+        '<div class="quest-icon">'+q.icon+'</div>' +
+        '<div class="quest-xp-badge '+(q.xp >= 0 ? 'pos' : 'neg')+'">'+(q.xp >= 0 ? '+' : '')+q.xp+' XP</div>' +
+      '</div>' +
+      '<div class="quest-name">'+escapeHtml(q.name)+'</div>' +
+      '<div class="quest-desc">'+escapeHtml(q.desc || '')+'</div>' +
+      '<div class="quest-card-actions">' +
+        '<button class="quest-assign-btn" data-act="assign">🎯 Attribuer</button>' +
+        '<button class="quest-icon-btn" data-act="edit" title="Modifier">✎</button>' +
+        '<button class="quest-icon-btn" data-act="del" title="Supprimer">🗑</button>' +
+      '</div>';
+    card.querySelector('[data-act="assign"]').addEventListener('click', function(){ openAssignPanel(q.id); });
+    card.querySelector('[data-act="edit"]').addEventListener('click', function(){ openQuestForm(q.id); });
+    card.querySelector('[data-act="del"]').addEventListener('click', function(){
+      confirmDialog(
+        'Supprimer « ' + q.name + ' » ?',
+        'Cette quête sera retirée du catalogue. L\u2019historique déjà attribué aux aventuriers n\u2019est pas modifié.',
+        'Supprimer',
+        function(){
+          state.quests = state.quests.filter(function(x){ return x.id !== q.id; });
+          saveState();
+          renderQuests();
+          showToast('Quête supprimée.');
+        }
+      );
+    });
+    grid.appendChild(card);
+  });
+}
+
+function openQuestForm(questId){
+  var editing = questId ? getQuestById(questId) : null;
+  var selectedIcon = editing ? editing.icon : QUEST_ICONS[0];
+  var selectedSign = editing ? (editing.xp < 0 ? 'malus' : 'bonus') : 'bonus';
+
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  var card = document.createElement('div');
+  card.className = 'modal-card';
+  card.style.maxWidth = '400px';
+
+  card.innerHTML =
+    '<button class="modal-close" aria-label="Fermer">×</button>' +
+    '<div class="section-label" style="margin-top:8px;">'+(editing ? 'Modifier la quête' : 'Nouvelle quête')+'</div>' +
+    '<div class="icon-picker" id="iconPicker"></div>' +
+    '<div class="form-field">' +
+      '<label>Nom de la quête</label>' +
+      '<input type="text" id="qName" placeholder="Ex. Lecture du soir" value="'+(editing ? escapeHtml(editing.name) : '')+'">' +
+    '</div>' +
+    '<div class="form-field">' +
+      '<label>Type</label>' +
+      '<div class="sign-toggle">' +
+        '<button type="button" id="signBonus" class="'+(selectedSign==='bonus'?'active bonus':'')+'">＋ Bonus</button>' +
+        '<button type="button" id="signMalus" class="'+(selectedSign==='malus'?'active malus':'')+'">－ Malus</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-field">' +
+      '<label>Valeur en XP</label>' +
+      '<input type="number" id="qXp" min="1" max="9999" value="'+(editing ? Math.abs(editing.xp) : 10)+'">' +
+    '</div>' +
+    '<div class="form-field">' +
+      '<label>Description (optionnel)</label>' +
+      '<input type="text" id="qDesc" placeholder="Un rappel pour toi" value="'+(editing ? escapeHtml(editing.desc || '') : '')+'">' +
+    '</div>' +
+    '<div class="form-actions">' +
+      '<button class="form-cancel" id="qCancel">Annuler</button>' +
+      '<button class="form-save" id="qSave">'+(editing ? 'Enregistrer' : 'Créer la quête')+'</button>' +
+    '</div>';
+
+  overlay.appendChild(card);
+  document.getElementById('modalRoot').appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+  card.querySelector('.modal-close').addEventListener('click', function(){ overlay.remove(); });
+  card.querySelector('#qCancel').addEventListener('click', function(){ overlay.remove(); });
+
+  var iconPicker = card.querySelector('#iconPicker');
+  QUEST_ICONS.forEach(function(ic){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'icon-choice' + (ic === selectedIcon ? ' selected' : '');
+    btn.textContent = ic;
+    btn.addEventListener('click', function(){
+      selectedIcon = ic;
+      iconPicker.querySelectorAll('.icon-choice').forEach(function(b){ b.classList.remove('selected'); });
+      btn.classList.add('selected');
+    });
+    iconPicker.appendChild(btn);
+  });
+
+  var signBonusBtn = card.querySelector('#signBonus');
+  var signMalusBtn = card.querySelector('#signMalus');
+  signBonusBtn.addEventListener('click', function(){
+    selectedSign = 'bonus';
+    signBonusBtn.className = 'active bonus';
+    signMalusBtn.className = '';
+  });
+  signMalusBtn.addEventListener('click', function(){
+    selectedSign = 'malus';
+    signMalusBtn.className = 'active malus';
+    signBonusBtn.className = '';
+  });
+
+  card.querySelector('#qSave').addEventListener('click', function(){
+    var name = card.querySelector('#qName').value.trim();
+    if (!name){ card.querySelector('#qName').focus(); return; }
+    var magnitude = Math.max(1, parseInt(card.querySelector('#qXp').value, 10) || 1);
+    var xp = selectedSign === 'malus' ? -magnitude : magnitude;
+    var desc = card.querySelector('#qDesc').value.trim();
+
+    if (editing){
+      editing.icon = selectedIcon; editing.name = name; editing.xp = xp; editing.desc = desc;
+    } else {
+      state.quests.push({ id: 'qN' + Date.now().toString(36) + Math.floor(Math.random()*1000), icon: selectedIcon, name: name, xp: xp, desc: desc });
+    }
+    saveState();
+    overlay.remove();
+    renderQuests();
+    showToast(editing ? 'Quête mise à jour.' : 'Nouvelle quête créée.');
+  });
+}
+
+function getQuestById(id){
+  for (var i = 0; i < state.quests.length; i++) if (state.quests[i].id === id) return state.quests[i];
+  return null;
+}
+
+function openAssignPanel(questId){
+  var quest = getQuestById(questId);
+  if (!quest) return;
+  var selected = {};
+
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  var card = document.createElement('div');
+  card.className = 'modal-card';
+  card.style.maxWidth = '400px';
+
+  card.innerHTML =
+    '<button class="modal-close" aria-label="Fermer">×</button>' +
+    '<div class="assign-quest-header">' +
+      '<div class="quest-icon">'+quest.icon+'</div>' +
+      '<h3>'+escapeHtml(quest.name)+'</h3>' +
+      '<div class="quest-xp-badge '+(quest.xp >= 0 ? 'pos' : 'neg')+'" style="display:inline-block;">'+(quest.xp >= 0 ? '+' : '')+quest.xp+' XP</div>' +
+    '</div>' +
+    '<div class="assign-select-all">' +
+      '<span id="selAll">Tout sélectionner</span><span id="selNone">Tout désélectionner</span>' +
+    '</div>' +
+    '<div class="assign-list" id="assignList"></div>' +
+    '<button class="assign-confirm-btn" id="assignConfirm" disabled>Attribuer à 0 aventurier</button>';
+
+  overlay.appendChild(card);
+  document.getElementById('modalRoot').appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+  card.querySelector('.modal-close').addEventListener('click', function(){ overlay.remove(); });
+
+  var listEl = card.querySelector('#assignList');
+  var confirmBtn = card.querySelector('#assignConfirm');
+
+  function updateConfirmLabel(){
+    var n = Object.keys(selected).filter(function(k){ return selected[k]; }).length;
+    confirmBtn.textContent = 'Attribuer à ' + n + (n > 1 ? ' aventuriers' : ' aventurier');
+    confirmBtn.disabled = n === 0;
+  }
+
+  state.students.forEach(function(st){
+    var row = document.createElement('div');
+    row.className = 'assign-row';
+    row.innerHTML =
+      '<div class="mini-avatar">'+buildAvatarSVG(st.avatar)+'</div>' +
+      '<div class="a-name">'+escapeHtml(st.name)+'</div>' +
+      '<div class="a-check">✓</div>';
+    row.addEventListener('click', function(){
+      selected[st.id] = !selected[st.id];
+      row.classList.toggle('checked', !!selected[st.id]);
+      updateConfirmLabel();
+    });
+    listEl.appendChild(row);
+  });
+
+  card.querySelector('#selAll').addEventListener('click', function(){
+    state.students.forEach(function(st){ selected[st.id] = true; });
+    listEl.querySelectorAll('.assign-row').forEach(function(r){ r.classList.add('checked'); });
+    updateConfirmLabel();
+  });
+  card.querySelector('#selNone').addEventListener('click', function(){
+    selected = {};
+    listEl.querySelectorAll('.assign-row').forEach(function(r){ r.classList.remove('checked'); });
+    updateConfirmLabel();
+  });
+
+  confirmBtn.addEventListener('click', function(){
+    var ids = Object.keys(selected).filter(function(k){ return selected[k]; });
+    if (!ids.length) return;
+    var leveledCount = 0;
+    ids.forEach(function(id){
+      var lv = applyXpChange(id, quest.xp, 'Quête : ' + quest.name, null, { silent: true, skipRender: true });
+      if (lv) leveledCount++;
+    });
+    renderRoster();
+    if (currentView === 'guilds') renderGuilds();
+    overlay.remove();
+    var msg = 'Quête « ' + quest.name + ' » attribuée à ' + ids.length + (ids.length > 1 ? ' aventuriers' : ' aventurier') + '.';
+    if (leveledCount) msg += ' 🎉 ' + leveledCount + ' niveau' + (leveledCount > 1 ? 'x' : '') + ' gagné' + (leveledCount > 1 ? 's' : '') + ' !';
+    showToast(msg);
+  });
+}
+
+
 document.querySelectorAll('nav.tabs button').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('nav.tabs button').forEach(function(b){ b.classList.remove('active'); });
@@ -1180,11 +1516,16 @@ document.querySelectorAll('nav.tabs button').forEach(function(btn){
     document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
     document.getElementById('view-' + currentView).classList.add('active');
     if (currentView === 'guilds') renderGuilds();
+    if (currentView === 'quests') renderQuests();
   });
 });
 
 document.getElementById('btnAddStudent').addEventListener('click', function(){
   addStudent();
+});
+
+document.getElementById('btnAddQuest').addEventListener('click', function(){
+  openQuestForm(null);
 });
 
 /* =========================================================
@@ -1206,14 +1547,16 @@ classLabelEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.
 document.getElementById('resetLink').addEventListener('click', function(){
   confirmDialog(
     'Réinitialiser le registre ?',
-    'Tous les niveaux, XP, guildes et apparences seront remis à zéro et le registre repart avec 20 aventuriers par défaut. Cette action est irréversible.',
+    'Tous les niveaux, XP, guildes, quêtes et apparences seront remis à zéro et le registre repart avec 20 aventuriers par défaut. Cette action est irréversible.',
     'Réinitialiser',
     function(){
       state.students = seedDefaultRoster();
       state.guilds = JSON.parse(JSON.stringify(GUILDS));
+      state.quests = seedDefaultQuests();
       saveState();
       closeModal();
       renderRoster();
+      renderQuests();
       if (currentView === 'guilds') renderGuilds();
       showToast('Le registre a été réinitialisé.');
     }
