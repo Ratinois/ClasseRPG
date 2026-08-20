@@ -578,15 +578,41 @@ function seedDefaultQuests(){
    NIVEAUX
 ========================================================= */
 function xpForLevel(level){ return CONFIG.XP_BASE + (level - 1) * CONFIG.XP_GROWTH; }
+
+// XP cumulée nécessaire pour avoir complété "k" niveaux (k = niveaux déjà passés).
+// Les seuils par niveau forment une suite arithmétique, donc leur somme est une
+// fonction quadratique de k : cumulativeXp(k) = k*BASE + GROWTH*k*(k-1)/2.
+function cumulativeXp(k){
+  return k * CONFIG.XP_BASE + CONFIG.XP_GROWTH * k * (k - 1) / 2;
+}
+
+// Résout k directement via la formule quadratique plutôt que d'accumuler
+// niveau par niveau — le nombre de niveaux n'a aucune influence sur le coût.
+function levelIndexFromXp(xp){
+  var base = CONFIG.XP_BASE, growth = CONFIG.XP_GROWTH;
+  if (growth === 0){
+    return base > 0 ? Math.floor(xp / base) : 0;
+  }
+  var a = growth / 2;
+  var b = base - growth / 2;
+  var c = -xp;
+  var disc = Math.max(0, b * b - 4 * a * c);
+  var k = Math.floor((-b + Math.sqrt(disc)) / (2 * a));
+  return Math.max(0, k);
+}
+
 function getLevelInfo(totalXp){
   totalXp = Math.max(0, totalXp || 0);
-  var level = 1, remaining = totalXp, req = xpForLevel(1);
-  while (remaining >= req){
-    remaining -= req;
-    level += 1;
-    req = xpForLevel(level);
-  }
-  return { level: level, xpInto: remaining, xpNeeded: req, progress: Math.min(1, remaining / req) };
+  var k = levelIndexFromXp(totalXp);
+  var level = k + 1;
+  var into = totalXp - cumulativeXp(k);
+  var req = xpForLevel(level);
+  // Filet de sécurité : sqrt() en flottant peut dévier de ±1 niveau tout près
+  // d'un seuil exact. Ces deux boucles ne font jamais plus d'un ou deux tours
+  // en pratique (elles corrigent une erreur d'arrondi, pas un calcul complet).
+  while (into >= req){ into -= req; level += 1; req = xpForLevel(level); }
+  while (into < 0){ level -= 1; req = xpForLevel(level); into += req; }
+  return { level: level, xpInto: into, xpNeeded: req, progress: Math.min(1, into / req) };
 }
 
 /* =========================================================
@@ -870,7 +896,7 @@ function floatPopOn(container, text, cls){
 /* =========================================================
    APPLIQUER UN CHANGEMENT D'XP
 ========================================================= */
-function applyXpChange(id, delta, reason, sourceCardEl, opts){
+function applyXpChange(id, delta, reason, opts){
   opts = opts || {};
   var st = getStudent(id);
   if (!st || !delta) return false;
@@ -888,22 +914,23 @@ function applyXpChange(id, delta, reason, sourceCardEl, opts){
 
   saveState();
 
-  if (sourceCardEl){
-    floatPopOn(sourceCardEl, (delta > 0 ? '+' : '') + delta + ' XP', delta > 0 ? 'bonus' : 'malus');
-  }
-
   var leveledUp = afterInfo.level > beforeLevel;
   if (leveledUp && !opts.silent) showToast('🎉 ' + st.name + ' passe niveau ' + afterInfo.level + ' !');
 
   if (!opts.skipRender){
-    renderRoster();
+    // On ne met à jour QUE la carte concernée (pas de grid.innerHTML='' global) :
+    // les autres cartes, et une éventuelle édition de nom en cours ailleurs,
+    // restent intactes.
+    var freshCard = refreshStudentCard(id, leveledUp);
+    if (opts.showEffects && freshCard){
+      // Ces effets doivent être posés APRÈS le remplacement de la carte : les
+      // poser avant (sur l'ancien nœud) les faisait disparaître instantanément
+      // puisque ce nœud était de toute façon détruit dans la même frame.
+      flashBar(freshCard, delta > 0 ? 'bonus' : 'malus');
+      floatPopOn(freshCard, (delta > 0 ? '+' : '') + delta + ' XP', delta > 0 ? 'bonus' : 'malus');
+    }
     if (currentView === 'guilds') renderGuilds();
     if (openStudentId === id) renderModal(leveledUp);
-  }
-
-  if (leveledUp){
-    var cardEl = document.querySelector('.card[data-id="'+id+'"]');
-    if (cardEl){ cardEl.classList.remove('leveling-up'); void cardEl.offsetWidth; cardEl.classList.add('leveling-up'); }
   }
   return leveledUp;
 }
@@ -955,68 +982,91 @@ function deleteStudent(id){
 /* =========================================================
    RENDU — ROSTER
 ========================================================= */
+function buildStudentCard(st){
+  var info = getLevelInfo(st.xp);
+  var guild = getGuild(st.guild);
+  var outfit = OUTFITS[st.avatar.outfit % OUTFITS.length];
+
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-id', st.id);
+
+  card.innerHTML =
+    '<div class="card-top">' +
+      '<div class="medallion">' + buildAvatarSVG(st.avatar) + '<div class="level-badge">'+info.level+'</div></div>' +
+      '<div>' +
+        '<div class="card-name" contenteditable="true" spellcheck="false">'+escapeHtml(st.name)+'</div>' +
+        '<div class="card-class">'+outfit.name+'</div>' +
+        '<span class="card-guild-tag" style="background:'+guild.color+'">'+escapeHtml(guild.name)+'</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="xpbar-wrap">' +
+      '<div class="xpbar-labels"><span>Niv. '+info.level+'</span><span>'+info.xpInto+' / '+info.xpNeeded+' XP</span></div>' +
+      '<div class="xpbar"><div class="xpbar-fill" style="width:'+Math.round(info.progress*100)+'%"></div></div>' +
+    '</div>' +
+    '<div class="quick-actions">' +
+      '<input type="number" class="qty-input" value="5" min="1" max="999">' +
+      '<button class="qbtn bonus" data-act="bonus">＋ Bonus</button>' +
+      '<button class="qbtn malus" data-act="malus">－ Malus</button>' +
+    '</div>';
+
+  // open modal on card click, but not on interactive elements
+  card.addEventListener('click', function(e){
+    if (e.target.closest('.qty-input, .qbtn, .card-name')) return;
+    openModal(st.id);
+  });
+
+  var nameEl = card.querySelector('.card-name');
+  nameEl.addEventListener('click', function(e){ e.stopPropagation(); });
+  nameEl.addEventListener('blur', function(){ renameStudent(st.id, nameEl.textContent); renderRoster(); if(currentView==='guilds') renderGuilds(); });
+  nameEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); nameEl.blur(); } });
+
+  var qtyInput = card.querySelector('.qty-input');
+  qtyInput.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  card.querySelector('[data-act="bonus"]').addEventListener('click', function(e){
+    e.stopPropagation();
+    var amt = Math.max(1, parseInt(qtyInput.value, 10) || 5);
+    applyXpChange(st.id, amt, null, { showEffects: true });
+  });
+  card.querySelector('[data-act="malus"]').addEventListener('click', function(e){
+    e.stopPropagation();
+    var amt = Math.max(1, parseInt(qtyInput.value, 10) || 5);
+    applyXpChange(st.id, -amt, null, { showEffects: true });
+  });
+
+  return card;
+}
+
 function renderRoster(){
   var grid = document.getElementById('rosterGrid');
   grid.innerHTML = '';
   var countEl = document.getElementById('rosterCount');
   if (countEl) countEl.textContent = state.students.length + (state.students.length > 1 ? ' aventuriers' : ' aventurier');
   state.students.forEach(function(st){
-    var info = getLevelInfo(st.xp);
-    var guild = getGuild(st.guild);
-    var outfit = OUTFITS[st.avatar.outfit % OUTFITS.length];
-
-    var card = document.createElement('div');
-    card.className = 'card';
-    card.setAttribute('data-id', st.id);
-
-    card.innerHTML =
-      '<div class="card-top">' +
-        '<div class="medallion">' + buildAvatarSVG(st.avatar) + '<div class="level-badge">'+info.level+'</div></div>' +
-        '<div>' +
-          '<div class="card-name" contenteditable="true" spellcheck="false">'+escapeHtml(st.name)+'</div>' +
-          '<div class="card-class">'+outfit.name+'</div>' +
-          '<span class="card-guild-tag" style="background:'+guild.color+'">'+escapeHtml(guild.name)+'</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="xpbar-wrap">' +
-        '<div class="xpbar-labels"><span>Niv. '+info.level+'</span><span>'+info.xpInto+' / '+info.xpNeeded+' XP</span></div>' +
-        '<div class="xpbar"><div class="xpbar-fill" style="width:'+Math.round(info.progress*100)+'%"></div></div>' +
-      '</div>' +
-      '<div class="quick-actions">' +
-        '<input type="number" class="qty-input" value="5" min="1" max="999">' +
-        '<button class="qbtn bonus" data-act="bonus">＋ Bonus</button>' +
-        '<button class="qbtn malus" data-act="malus">－ Malus</button>' +
-      '</div>';
-
-    // open modal on card click, but not on interactive elements
-    card.addEventListener('click', function(e){
-      if (e.target.closest('.qty-input, .qbtn, .card-name')) return;
-      openModal(st.id);
-    });
-
-    var nameEl = card.querySelector('.card-name');
-    nameEl.addEventListener('click', function(e){ e.stopPropagation(); });
-    nameEl.addEventListener('blur', function(){ renameStudent(st.id, nameEl.textContent); renderRoster(); if(currentView==='guilds') renderGuilds(); });
-    nameEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); nameEl.blur(); } });
-
-    var qtyInput = card.querySelector('.qty-input');
-    qtyInput.addEventListener('click', function(e){ e.stopPropagation(); });
-
-    card.querySelector('[data-act="bonus"]').addEventListener('click', function(e){
-      e.stopPropagation();
-      var amt = Math.max(1, parseInt(qtyInput.value, 10) || 5);
-      flashBar(card, 'bonus');
-      applyXpChange(st.id, amt, null, card);
-    });
-    card.querySelector('[data-act="malus"]').addEventListener('click', function(e){
-      e.stopPropagation();
-      var amt = Math.max(1, parseInt(qtyInput.value, 10) || 5);
-      flashBar(card, 'malus');
-      applyXpChange(st.id, -amt, null, card);
-    });
-
-    grid.appendChild(card);
+    grid.appendChild(buildStudentCard(st));
   });
+}
+
+// Met à jour UNE seule carte dans le DOM au lieu de reconstruire toute la
+// grille — utilisé sur le chemin le plus fréquent (bonus/malus rapides), pour
+// ne pas perturber les autres cartes (ex. une édition de nom en cours ailleurs).
+function refreshStudentCard(id, leveledUp){
+  var grid = document.getElementById('rosterGrid');
+  var existing = grid.querySelector('.card[data-id="'+id+'"]');
+  var st = getStudent(id);
+  if (!st){
+    if (existing) existing.remove();
+    return null;
+  }
+  var fresh = buildStudentCard(st);
+  if (leveledUp) fresh.classList.add('leveling-up');
+  if (existing){
+    existing.replaceWith(fresh);
+  } else {
+    grid.appendChild(fresh);
+  }
+  return fresh;
 }
 
 function flashBar(card, kind){
@@ -1495,7 +1545,7 @@ function openAssignPanel(questId){
     if (!ids.length) return;
     var leveledCount = 0;
     ids.forEach(function(id){
-      var lv = applyXpChange(id, quest.xp, 'Quête : ' + quest.name, null, { silent: true, skipRender: true });
+      var lv = applyXpChange(id, quest.xp, 'Quête : ' + quest.name, { silent: true, skipRender: true });
       if (lv) leveledCount++;
     });
     renderRoster();
